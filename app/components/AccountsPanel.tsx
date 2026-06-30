@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase, Account, AccountType } from '@/lib/supabase';
 
+// Friendly names used in the UI for each internal account type.
 const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   bank: 'Bank Account',
   credit_card: 'Credit Card',
@@ -17,6 +18,8 @@ interface Props {
   onRefresh: () => void;
 }
 
+// Manage financial accounts such as bank accounts, savings, cash, and credit cards.
+// Also displays the live computed balance for each account.
 export default function AccountsPanel({ accounts, balances, onRefresh }: Props) {
   const [name, setName] = useState('');
   const [type, setType] = useState<AccountType>('bank');
@@ -24,6 +27,8 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Create a new account in Supabase using the entered name,
+  // selected account type, and opening balance.
   const handleAdd = async () => {
     if (!name.trim()) { setError('Account name is required.'); return; }
     setSaving(true);
@@ -41,6 +46,8 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
     onRefresh();
   };
 
+  // Remove an account from Supabase.
+  // Existing transactions will remain, but their account reference may become null.
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this account? Transactions linked to it will lose their account reference.')) return;
     await supabase.from('accounts').delete().eq('id', id);
@@ -50,7 +57,7 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
   return (
     <div style={{ marginBottom: 32 }}>
       <h2 style={{ marginBottom: 12 }}>Accounts</h2>
-
+      {/* Form for adding a new account */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 12 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           <label style={labelStyle}>Account Name</label>
@@ -85,11 +92,14 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
 
       {error && <div style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 8 }}>{error}</div>}
 
+      {/* Show an empty-state message if no accounts exist, otherwise show account cards */}
       {accounts.length === 0 ? (
         <p style={{ color: 'var(--muted-text)', fontSize: 14 }}>No accounts yet. Add one above.</p>
       ) : (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-          {accounts.map(acc => {
+          {accounts.map(acc => {            
+            // Use the computed running balance if available;
+            // otherwise fall back to the opening balance.
             const balance = balances[acc.id] ?? acc.opening_balance;
             const isNeg = balance < 0;
             return (
@@ -102,6 +112,7 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
                 <div style={{ fontSize: 11, color: 'var(--faint-text)', marginTop: 2 }}>
                   Opening: ${Number(acc.opening_balance).toFixed(2)}
                 </div>
+                {/* Delete account button */}
                 <button
                   onClick={() => handleDelete(acc.id)}
                   style={dangerOutlineBtnStyle}

@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { supabase, Account, Category, Transaction, TransactionType } from '@/lib/supabase';
 
+// Get today's date in YYYY-MM-DD format for the date input default value.
 function todayStr() { return new Date().toISOString().slice(0, 10); }
+// Get the current local time in HH:MM format for the time input default value.
 function nowTimeStr() { return new Date().toTimeString().slice(0, 5); }
 
 interface Props {
@@ -14,6 +16,8 @@ interface Props {
   onCancelEdit: () => void;
 }
 
+// Form used for both adding and editing transactions.
+// Supports income, expense, and transfer modes.
 export default function TransactionForm({ categories, accounts, editing, onSaved, onCancelEdit }: Props) {
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
@@ -27,6 +31,8 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // When a transaction is selected for editing,
+  // load the existing database values into the form fields.
   useEffect(() => {
     if (editing) {
       setType(editing.type);
@@ -42,6 +48,7 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
     }
   }, [editing]);
 
+  // Reset the form back to its default "Add Transaction" state
   const reset = () => {
     setType('expense');
     setAmount('');
@@ -55,6 +62,9 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
     setError('');
   };
 
+  // Validate form input before saving anything to Supabase.
+  // Transfer rows require two different accounts.
+  // Income and expense rows require a category.
   const validate = () => {
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) return 'Enter a valid positive amount.';
     if (!description.trim()) return 'Description is required.';
@@ -69,12 +79,18 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
     return '';
   };
 
+  // Save the form to Supabase.
+  // If editing exists, update the existing row.
+  // Otherwise, insert a brand-new transaction
   const handleSubmit = async () => {
     const err = validate();
     if (err) { setError(err); return; }
     setSaving(true);
     setError('');
 
+    // Build the database payload based on transaction type.
+    // Normal transactions use account_id + category_id.
+    // Transfer transactions use from_account_id + to_account_id and no category.
     const payload: Record<string, unknown> = {
       type,
       amount: Number(amount),
@@ -105,15 +121,18 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
     onSaved();
   };
 
+  // Exit edit mode and restore the form to its default add state.
   const handleCancel = () => {
     reset();
     onCancelEdit();
   };
 
+  // Transfer mode changes which account fields are shown in the form.
   const isTransfer = type === 'transfer';
 
   return (
     <div style={{ marginBottom: 28 }}>
+      {/* Show a warning banner while editing an existing transaction */}
       {editing && (
         <div style={editNoticeStyle}>
           Editing transaction - make changes and click Save, or Cancel to discard.
@@ -121,6 +140,7 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {/* Row 1: type + amount + description */}
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={fieldStyle}>
             <label style={labelStyle}>Type</label>
@@ -153,6 +173,7 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
           </div>
         </div>
 
+        {/* Row 2: date + time + category/account or transfer account fields */}
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={fieldStyle}>
             <label style={labelStyle}>Date</label>
@@ -163,6 +184,7 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
             <input type="time" value={time} onChange={e => setTime(e.target.value)} style={inputStyle} />
           </div>
 
+          {/* Show category + single account fields for income and expense transactions */}
           {!isTransfer && (
             <>
               <div style={fieldStyle}>
@@ -182,6 +204,7 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
             </>
           )}
 
+          {/* Show From Account and To Account fields only in transfer mode */}
           {isTransfer && (
             <>
               <div style={fieldStyle}>
@@ -202,8 +225,10 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
           )}
         </div>
 
+        {/* Validation or database error message */}
         {error && <div style={{ color: 'var(--danger)', fontSize: 13 }}>{error}</div>}
 
+        {/* Save button adds or updates a transaction; Cancel appears only in edit mode */}
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={handleSubmit} disabled={saving} style={primaryBtnStyle}>
             {saving ? 'Saving...' : editing ? 'Save Changes' : 'Add Transaction'}

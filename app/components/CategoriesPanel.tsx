@@ -8,14 +8,20 @@ interface Props {
   onRefresh: () => void;
 }
 
+// Manage the category list for the ledger.
+// Default categories are protected.
+// Custom categories can be added or deleted if they are unused.
 export default function CategoriesPanel({ categories, onRefresh }: Props) {
   const [newName, setNewName] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-
+  
+  // Add a new custom category to Supabase after checking
+  // that the name is not empty and does not already exist.
   const handleAdd = async () => {
     const name = newName.trim();
     if (!name) { setError('Name is required.'); return; }
+    // Prevent duplicate category names, ignoring differences in upper/lower case.
     if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
       setError('A category with this name already exists.');
       return;
@@ -28,9 +34,13 @@ export default function CategoriesPanel({ categories, onRefresh }: Props) {
     setNewName('');
     onRefresh();
   };
-
+  
+  // Delete a custom category only if it is not a default category
+  // and is not currently linked to any existing transaction.
   const handleDelete = async (cat: Category) => {
-    if (cat.is_default) { alert('Default categories cannot be deleted.'); return; }
+    if (cat.is_default) { alert('Default categories cannot be deleted.'); return; }    
+    // Check whether at least one transaction still uses this category.
+    // If yes, block deletion to avoid breaking existing ledger rows.
     const { data: txns } = await supabase
       .from('transactions')
       .select('id')
@@ -46,7 +56,9 @@ export default function CategoriesPanel({ categories, onRefresh }: Props) {
 
   return (
     <div style={{ marginBottom: 28 }}>
+      {/* Category manager for custom additions and safe cleanup */}
       <h2 style={{ marginBottom: 10 }}>Manage Categories</h2>
+      {/* Row for adding a new custom category */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12 }}>
         <input
           placeholder="New category name"
@@ -64,6 +76,7 @@ export default function CategoriesPanel({ categories, onRefresh }: Props) {
         </button>
         {error && <span style={{ color: 'var(--danger)', fontSize: 13 }}>{error}</span>}
       </div>
+      {/* Existing categories shown as chips/tags */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {categories.map(cat => (
           <div
@@ -79,7 +92,8 @@ export default function CategoriesPanel({ categories, onRefresh }: Props) {
               fontSize: 13,
             }}
           >
-            <span>{cat.name}</span>
+            <span>{cat.name}</span>            
+            {/* Show delete button only for custom categories */}
             {!cat.is_default && (
               <button
                 onClick={() => handleDelete(cat)}
