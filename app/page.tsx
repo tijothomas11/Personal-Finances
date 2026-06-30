@@ -27,7 +27,7 @@ export default function Home() {
         .order('transaction_time', { ascending: false }),
     ]);
     if (catRes.error || accRes.error || txRes.error) {
-      setLoadError('Failed to load data. Please refresh.');
+      setLoadError('Failed to load categories: relation "categories" does not exist');
     } else {
       setCategories(catRes.data ?? []);
       setAccounts(accRes.data ?? []);
