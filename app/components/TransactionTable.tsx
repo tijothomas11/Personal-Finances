@@ -50,9 +50,9 @@ export default function TransactionTable({ transactions, accounts, categories, o
   const categoryMap = Object.fromEntries(categories.map(c => [c.id, c]));
 
   return (
-    {/* Allow horizontal scrolling on smaller screens so the ledger remains readable */}
-    {/* Main transaction ledger table */}
     <div style={{ overflowX: 'auto' }}>
+        {/* Allow horizontal scrolling on smaller screens so the ledger remains readable */}
+       {/* Main transaction ledger table */}
       <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: '2px solid var(--border-strong)', color: 'var(--muted-text)', textAlign: 'left' }}>
