@@ -53,35 +53,40 @@ export default function CategoriesPanel({ categories, onRefresh }: Props) {
           value={newName}
           onChange={e => setNewName(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleAdd()}
-          style={{ padding: '7px 10px', border: '1px solid #ccc', borderRadius: 4, fontSize: 14, minWidth: 180 }}
+          style={inputStyle}
         />
         <button
           onClick={handleAdd}
           disabled={saving}
-          style={{ padding: '7px 14px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 4, fontWeight: 600, cursor: 'pointer', fontSize: 14 }}
+          style={primaryBtnStyle}
         >
-          {saving ? 'Adding…' : 'Add'}
+          {saving ? 'Adding...' : 'Add'}
         </button>
-        {error && <span style={{ color: '#c0392b', fontSize: 13 }}>{error}</span>}
+        {error && <span style={{ color: 'var(--danger)', fontSize: 13 }}>{error}</span>}
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {categories.map(cat => (
-          <div key={cat.id} style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '5px 10px',
-            border: '1px solid #ddd',
-            borderRadius: 20,
-            background: cat.is_default ? '#f5f5f5' : '#fff',
-            fontSize: 13,
-          }}>
+          <div
+            key={cat.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '5px 10px',
+              border: '1px solid var(--border)',
+              borderRadius: 20,
+              background: cat.is_default ? 'var(--surface-muted)' : 'var(--surface)',
+              fontSize: 13,
+            }}
+          >
             <span>{cat.name}</span>
             {!cat.is_default && (
               <button
                 onClick={() => handleDelete(cat)}
-                style={{ background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', fontWeight: 700, padding: 0, lineHeight: 1 }}
+                style={deleteBtnStyle}
                 title="Delete category"
               >
-                ×
+                x
               </button>
             )}
           </div>
@@ -90,3 +95,34 @@ export default function CategoriesPanel({ categories, onRefresh }: Props) {
     </div>
   );
 }
+
+const inputStyle: React.CSSProperties = {
+  padding: '7px 10px',
+  border: '1px solid var(--border)',
+  borderRadius: 4,
+  fontSize: 14,
+  minWidth: 180,
+  background: 'var(--input-bg)',
+  color: 'var(--input-text)',
+};
+
+const primaryBtnStyle: React.CSSProperties = {
+  padding: '7px 14px',
+  background: 'var(--primary)',
+  color: 'var(--primary-text)',
+  border: 'none',
+  borderRadius: 4,
+  fontWeight: 600,
+  cursor: 'pointer',
+  fontSize: 14,
+};
+
+const deleteBtnStyle: React.CSSProperties = {
+  background: 'none',
+  border: 'none',
+  color: 'var(--faint-text)',
+  cursor: 'pointer',
+  fontWeight: 700,
+  padding: 0,
+  lineHeight: 1,
+};

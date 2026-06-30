@@ -27,7 +27,6 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // Populate form when editing
   useEffect(() => {
     if (editing) {
       setType(editing.type);
@@ -116,24 +115,23 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
   return (
     <div style={{ marginBottom: 28 }}>
       {editing && (
-        <div style={{ marginBottom: 10, padding: '6px 12px', background: '#fffbe6', border: '1px solid #f0d060', borderRadius: 4, fontSize: 13 }}>
-          Editing transaction — make changes and click Save, or Cancel to discard.
+        <div style={editNoticeStyle}>
+          Editing transaction - make changes and click Save, or Cancel to discard.
         </div>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {/* Row 1: type + amount + description */}
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <label style={lbl}>Type</label>
-            <select value={type} onChange={e => setType(e.target.value as TransactionType)} style={inp}>
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Type</label>
+            <select value={type} onChange={e => setType(e.target.value as TransactionType)} style={inputStyle}>
               <option value="expense">Expense</option>
               <option value="income">Income</option>
               <option value="transfer">Transfer</option>
             </select>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <label style={lbl}>Amount ($)</label>
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Amount ($)</label>
             <input
               type="number"
               placeholder="0.00"
@@ -141,43 +139,42 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
               min="0.01"
               step="0.01"
               onChange={e => setAmount(e.target.value)}
-              style={{ ...inp, minWidth: 110 }}
+              style={{ ...inputStyle, minWidth: 110 }}
             />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flexGrow: 1 }}>
-            <label style={lbl}>Description</label>
+          <div style={{ ...fieldStyle, flexGrow: 1 }}>
+            <label style={labelStyle}>Description</label>
             <input
               placeholder="e.g. KFC Lunch, Rent, Netflix"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              style={{ ...inp, minWidth: 200 }}
+              style={{ ...inputStyle, minWidth: 200 }}
             />
           </div>
         </div>
 
-        {/* Row 2: date + time + category (or transfer accounts) */}
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <label style={lbl}>Date</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inp} />
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Date</label>
+            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <label style={lbl}>Time</label>
-            <input type="time" value={time} onChange={e => setTime(e.target.value)} style={inp} />
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Time</label>
+            <input type="time" value={time} onChange={e => setTime(e.target.value)} style={inputStyle} />
           </div>
 
           {!isTransfer && (
             <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                <label style={lbl}>Category</label>
-                <select value={categoryId} onChange={e => setCategoryId(e.target.value)} style={{ ...inp, minWidth: 180 }}>
+              <div style={fieldStyle}>
+                <label style={labelStyle}>Category</label>
+                <select value={categoryId} onChange={e => setCategoryId(e.target.value)} style={{ ...inputStyle, minWidth: 180 }}>
                   <option value="">-- Select category --</option>
                   {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                <label style={lbl}>Account</label>
-                <select value={accountId} onChange={e => setAccountId(e.target.value)} style={{ ...inp, minWidth: 160 }}>
+              <div style={fieldStyle}>
+                <label style={labelStyle}>Account</label>
+                <select value={accountId} onChange={e => setAccountId(e.target.value)} style={{ ...inputStyle, minWidth: 160 }}>
                   <option value="">-- No account --</option>
                   {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
@@ -187,16 +184,16 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
 
           {isTransfer && (
             <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                <label style={lbl}>From Account</label>
-                <select value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} style={{ ...inp, minWidth: 160 }}>
+              <div style={fieldStyle}>
+                <label style={labelStyle}>From Account</label>
+                <select value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} style={{ ...inputStyle, minWidth: 160 }}>
                   <option value="">-- Select --</option>
                   {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                <label style={lbl}>To Account</label>
-                <select value={toAccountId} onChange={e => setToAccountId(e.target.value)} style={{ ...inp, minWidth: 160 }}>
+              <div style={fieldStyle}>
+                <label style={labelStyle}>To Account</label>
+                <select value={toAccountId} onChange={e => setToAccountId(e.target.value)} style={{ ...inputStyle, minWidth: 160 }}>
                   <option value="">-- Select --</option>
                   {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
@@ -205,15 +202,14 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
           )}
         </div>
 
-        {error && <div style={{ color: '#c0392b', fontSize: 13 }}>{error}</div>}
+        {error && <div style={{ color: 'var(--danger)', fontSize: 13 }}>{error}</div>}
 
-        {/* Buttons */}
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={handleSubmit} disabled={saving} style={primaryBtn}>
-            {saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Transaction'}
+          <button onClick={handleSubmit} disabled={saving} style={primaryBtnStyle}>
+            {saving ? 'Saving...' : editing ? 'Save Changes' : 'Add Transaction'}
           </button>
           {editing && (
-            <button onClick={handleCancel} style={secondaryBtn}>Cancel Edit</button>
+            <button onClick={handleCancel} style={secondaryBtnStyle}>Cancel Edit</button>
           )}
         </div>
       </div>
@@ -221,7 +217,54 @@ export default function TransactionForm({ categories, accounts, editing, onSaved
   );
 }
 
-const lbl: React.CSSProperties = { fontSize: 11, color: '#666', fontWeight: 600 };
-const inp: React.CSSProperties = { padding: '7px 10px', border: '1px solid #ccc', borderRadius: 4, fontSize: 14 };
-const primaryBtn: React.CSSProperties = { padding: '8px 20px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 4, fontWeight: 600, cursor: 'pointer', fontSize: 14 };
-const secondaryBtn: React.CSSProperties = { padding: '8px 16px', background: '#fff', color: '#333', border: '1px solid #ccc', borderRadius: 4, cursor: 'pointer', fontSize: 14 };
+const fieldStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 3,
+};
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: 'var(--muted-text)',
+  fontWeight: 600,
+};
+
+const inputStyle: React.CSSProperties = {
+  padding: '7px 10px',
+  border: '1px solid var(--border)',
+  borderRadius: 4,
+  fontSize: 14,
+  background: 'var(--input-bg)',
+  color: 'var(--input-text)',
+};
+
+const editNoticeStyle: React.CSSProperties = {
+  marginBottom: 10,
+  padding: '6px 12px',
+  background: 'var(--warning-bg)',
+  color: 'var(--warning-text)',
+  border: '1px solid var(--warning-border)',
+  borderRadius: 4,
+  fontSize: 13,
+};
+
+const primaryBtnStyle: React.CSSProperties = {
+  padding: '8px 20px',
+  background: 'var(--primary)',
+  color: 'var(--primary-text)',
+  border: 'none',
+  borderRadius: 4,
+  fontWeight: 600,
+  cursor: 'pointer',
+  fontSize: 14,
+};
+
+const secondaryBtnStyle: React.CSSProperties = {
+  padding: '8px 16px',
+  background: 'var(--surface)',
+  color: 'var(--app-text)',
+  border: '1px solid var(--border)',
+  borderRadius: 4,
+  cursor: 'pointer',
+  fontSize: 14,
+};

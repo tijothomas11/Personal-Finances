@@ -51,7 +51,6 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
     <div style={{ marginBottom: 32 }}>
       <h2 style={{ marginBottom: 12 }}>Accounts</h2>
 
-      {/* Add account form */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 12 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           <label style={labelStyle}>Account Name</label>
@@ -79,15 +78,15 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
             style={{ ...inputStyle, minWidth: 120 }}
           />
         </div>
-        <button onClick={handleAdd} disabled={saving} style={btnStyle}>
-          {saving ? 'Adding…' : 'Add Account'}
+        <button onClick={handleAdd} disabled={saving} style={primaryBtnStyle}>
+          {saving ? 'Adding...' : 'Add Account'}
         </button>
       </div>
 
-      {error && <div style={{ color: 'red', fontSize: 13, marginBottom: 8 }}>{error}</div>}
+      {error && <div style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 8 }}>{error}</div>}
 
       {accounts.length === 0 ? (
-        <p style={{ color: '#888', fontSize: 14 }}>No accounts yet. Add one above.</p>
+        <p style={{ color: 'var(--muted-text)', fontSize: 14 }}>No accounts yet. Add one above.</p>
       ) : (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
           {accounts.map(acc => {
@@ -96,16 +95,16 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
             return (
               <div key={acc.id} style={cardStyle}>
                 <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 2 }}>{acc.name}</div>
-                <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>{ACCOUNT_TYPE_LABELS[acc.type]}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: isNeg ? '#c0392b' : '#1a7a4a' }}>
+                <div style={{ fontSize: 12, color: 'var(--muted-text)', marginBottom: 8 }}>{ACCOUNT_TYPE_LABELS[acc.type]}</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: isNeg ? 'var(--expense)' : 'var(--income)' }}>
                   {isNeg ? '-' : ''}${Math.abs(balance).toFixed(2)}
                 </div>
-                <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>
+                <div style={{ fontSize: 11, color: 'var(--faint-text)', marginTop: 2 }}>
                   Opening: ${Number(acc.opening_balance).toFixed(2)}
                 </div>
                 <button
                   onClick={() => handleDelete(acc.id)}
-                  style={{ marginTop: 10, fontSize: 12, padding: '3px 8px', cursor: 'pointer', color: '#c0392b', border: '1px solid #c0392b', background: 'none' }}
+                  style={dangerOutlineBtnStyle}
                 >
                   Remove
                 </button>
@@ -118,13 +117,47 @@ export default function AccountsPanel({ accounts, balances, onRefresh }: Props) 
   );
 }
 
-const labelStyle: React.CSSProperties = { fontSize: 11, color: '#666', fontWeight: 600 };
-const inputStyle: React.CSSProperties = { padding: '7px 10px', border: '1px solid #ccc', borderRadius: 4, fontSize: 14 };
-const btnStyle: React.CSSProperties = { padding: '7px 16px', cursor: 'pointer', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 600 };
+const labelStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: 'var(--muted-text)',
+  fontWeight: 600,
+};
+
+const inputStyle: React.CSSProperties = {
+  padding: '7px 10px',
+  border: '1px solid var(--border)',
+  borderRadius: 4,
+  fontSize: 14,
+  background: 'var(--input-bg)',
+  color: 'var(--input-text)',
+};
+
+const primaryBtnStyle: React.CSSProperties = {
+  padding: '7px 16px',
+  cursor: 'pointer',
+  background: 'var(--primary)',
+  color: 'var(--primary-text)',
+  border: 'none',
+  borderRadius: 4,
+  fontSize: 14,
+  fontWeight: 600,
+};
+
+const dangerOutlineBtnStyle: React.CSSProperties = {
+  marginTop: 10,
+  fontSize: 12,
+  padding: '3px 8px',
+  cursor: 'pointer',
+  color: 'var(--danger)',
+  border: '1px solid var(--danger)',
+  borderRadius: 3,
+  background: 'transparent',
+};
+
 const cardStyle: React.CSSProperties = {
-  border: '1px solid #e0e0e0',
+  border: '1px solid var(--border)',
   borderRadius: 8,
   padding: '14px 18px',
   minWidth: 160,
-  background: '#fafafa',
+  background: 'var(--surface)',
 };

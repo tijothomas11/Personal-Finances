@@ -26,8 +26,12 @@ export default function Home() {
         .order('transaction_date', { ascending: false })
         .order('transaction_time', { ascending: false }),
     ]);
-    if (catRes.error || accRes.error || txRes.error) {
-      setLoadError('Failed to load categories: relation "categories" does not exist');
+    if (catRes.error) {
+      setLoadError(`Failed to load categories: ${catRes.error.message}`);
+    } else if (accRes.error) {
+      setLoadError(`Failed to load accounts: ${accRes.error.message}`);
+    } else if (txRes.error) {
+      setLoadError(`Failed to load transactions: ${txRes.error.message}`);
     } else {
       setCategories(catRes.data ?? []);
       setAccounts(accRes.data ?? []);
@@ -45,7 +49,6 @@ export default function Home() {
     if (editingTx?.id === id) setEditingTx(null);
   };
 
-  // Compute account balances from transactions
   const balances: Record<string, number> = {};
   for (const acc of accounts) {
     balances[acc.id] = Number(acc.opening_balance);
@@ -58,43 +61,39 @@ export default function Home() {
       balances[tx.account_id] = (balances[tx.account_id] ?? 0) - amt;
     } else if (tx.type === 'transfer') {
       if (tx.from_account_id) balances[tx.from_account_id] = (balances[tx.from_account_id] ?? 0) - amt;
-      if (tx.to_account_id)   balances[tx.to_account_id]   = (balances[tx.to_account_id]   ?? 0) + amt;
+      if (tx.to_account_id) balances[tx.to_account_id] = (balances[tx.to_account_id] ?? 0) + amt;
     }
   }
 
-  // Summary totals (exclude transfers from income/expense totals)
-  const totalIncome  = transactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
-  const netBalance   = totalIncome - totalExpense;
+  const netBalance = totalIncome - totalExpense;
 
   return (
-    <main style={{ padding: '28px 20px', display: 'flex', justifyContent: 'center' }}>
+    <main style={{ padding: '28px 20px', display: 'flex', justifyContent: 'center', minHeight: '100vh' }}>
       <div style={{ width: '100%', maxWidth: 1000 }}>
         <h1 style={{ marginBottom: 4, fontSize: 26, fontWeight: 700 }}>Personal Finance Ledger</h1>
-        <p style={{ color: '#888', marginBottom: 24, fontSize: 14 }}>Record, organize, and review your financial activity.</p>
+        <p style={{ color: 'var(--muted-text)', marginBottom: 24, fontSize: 14 }}>Record, organize, and review your financial activity.</p>
 
         {loadError && (
-          <div style={{ padding: '10px 16px', background: '#fdecea', color: '#c0392b', borderRadius: 4, marginBottom: 20, fontSize: 14 }}>
+          <div style={{ padding: '10px 16px', background: 'var(--danger-soft)', color: 'var(--danger)', border: '1px solid var(--danger-border)', borderRadius: 4, marginBottom: 20, fontSize: 14 }}>
             {loadError}
           </div>
         )}
 
-        {/* Summary bar */}
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 28 }}>
-          <SummaryCard label="Total Income"  value={totalIncome}  color="#1a7a4a" prefix="+" />
-          <SummaryCard label="Total Expenses" value={totalExpense} color="#c0392b" prefix="-" />
-          <SummaryCard label="Net Balance"   value={netBalance}   color={netBalance >= 0 ? '#1a7a4a' : '#c0392b'} />
+          <SummaryCard label="Total Income" value={totalIncome} color="var(--income)" prefix="+" />
+          <SummaryCard label="Total Expenses" value={totalExpense} color="var(--expense)" prefix="-" />
+          <SummaryCard label="Net Balance" value={netBalance} color={netBalance >= 0 ? 'var(--income)' : 'var(--expense)'} />
         </div>
 
-        {/* Accounts */}
         <AccountsPanel accounts={accounts} balances={balances} onRefresh={loadAll} />
 
-        <hr style={{ border: 'none', borderTop: '1px solid #ebebeb', marginBottom: 24 }} />
+        <hr style={dividerStyle} />
 
-        {/* Transaction form */}
         <h2 style={{ marginBottom: 12 }}>{editingTx ? 'Edit Transaction' : 'Add Transaction'}</h2>
         {loading ? (
-          <p style={{ color: '#888', fontSize: 14 }}>Loading…</p>
+          <p style={loadingStyle}>Loading...</p>
         ) : (
           <TransactionForm
             categories={categories}
@@ -105,12 +104,11 @@ export default function Home() {
           />
         )}
 
-        <hr style={{ border: 'none', borderTop: '1px solid #ebebeb', marginBottom: 24 }} />
+        <hr style={dividerStyle} />
 
-        {/* Ledger */}
         <h2 style={{ marginBottom: 12 }}>Transaction Ledger</h2>
         {loading ? (
-          <p style={{ color: '#888', fontSize: 14 }}>Loading…</p>
+          <p style={loadingStyle}>Loading...</p>
         ) : (
           <TransactionTable
             transactions={transactions}
@@ -122,9 +120,8 @@ export default function Home() {
           />
         )}
 
-        <hr style={{ border: 'none', borderTop: '1px solid #ebebeb', margin: '28px 0' }} />
+        <hr style={{ ...dividerStyle, margin: '28px 0' }} />
 
-        {/* Categories */}
         {!loading && <CategoriesPanel categories={categories} onRefresh={loadAll} />}
       </div>
     </main>
@@ -134,13 +131,27 @@ export default function Home() {
 function SummaryCard({ label, value, color, prefix = '' }: { label: string; value: number; color: string; prefix?: string }) {
   return (
     <div style={{
-      border: '1px solid #e0e0e0', borderRadius: 8, padding: '14px 20px',
-      minWidth: 160, background: '#fafafa',
+      border: '1px solid var(--border)',
+      borderRadius: 8,
+      padding: '14px 20px',
+      minWidth: 160,
+      background: 'var(--surface)',
     }}>
-      <div style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 12, color: 'var(--muted-text)', marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 22, fontWeight: 700, color, fontVariantNumeric: 'tabular-nums' }}>
         {prefix}${Math.abs(value).toFixed(2)}
       </div>
     </div>
   );
 }
+
+const dividerStyle: React.CSSProperties = {
+  border: 'none',
+  borderTop: '1px solid var(--border)',
+  marginBottom: 24,
+};
+
+const loadingStyle: React.CSSProperties = {
+  color: 'var(--muted-text)',
+  fontSize: 14,
+};

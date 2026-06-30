@@ -12,9 +12,9 @@ interface Props {
 }
 
 const TYPE_BADGE: Record<string, { label: string; color: string; bg: string }> = {
-  income:   { label: 'Income',   color: '#1a7a4a', bg: '#e6f4ee' },
-  expense:  { label: 'Expense',  color: '#c0392b', bg: '#fdecea' },
-  transfer: { label: 'Transfer', color: '#555',    bg: '#f0f0f0' },
+  income: { label: 'Income', color: 'var(--income)', bg: 'var(--income-soft)' },
+  expense: { label: 'Expense', color: 'var(--expense)', bg: 'var(--expense-soft)' },
+  transfer: { label: 'Transfer', color: 'var(--transfer)', bg: 'var(--transfer-soft)' },
 };
 
 function formatDate(d: string) {
@@ -28,13 +28,12 @@ function formatTime(t: string) {
 function daysBetween(isoDate: string, createdAt: string) {
   const txDate = new Date(isoDate + 'T00:00:00');
   const entryDate = new Date(createdAt);
-  const diff = Math.round((entryDate.getTime() - txDate.getTime()) / 86400000);
-  return diff;
+  return Math.round((entryDate.getTime() - txDate.getTime()) / 86400000);
 }
 
 export default function TransactionTable({ transactions, accounts, categories, onEdit, onDelete, editingId }: Props) {
   if (transactions.length === 0) {
-    return <p style={{ color: '#888', fontSize: 14, marginTop: 8 }}>No transactions yet. Add one above.</p>;
+    return <p style={{ color: 'var(--muted-text)', fontSize: 14, marginTop: 8 }}>No transactions yet. Add one above.</p>;
   }
 
   const accountMap = Object.fromEntries(accounts.map(a => [a.id, a]));
@@ -44,7 +43,7 @@ export default function TransactionTable({ transactions, accounts, categories, o
     <div style={{ overflowX: 'auto' }}>
       <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 14 }}>
         <thead>
-          <tr style={{ borderBottom: '2px solid #e0e0e0', color: '#555', textAlign: 'left' }}>
+          <tr style={{ borderBottom: '2px solid var(--border-strong)', color: 'var(--muted-text)', textAlign: 'left' }}>
             <th style={th}>Amount</th>
             <th style={th}>Date</th>
             <th style={th}>Time</th>
@@ -60,15 +59,15 @@ export default function TransactionTable({ transactions, accounts, categories, o
             const badge = TYPE_BADGE[tx.type];
             const isEditing = tx.id === editingId;
             const amtSign = tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : '';
-            const amtColor = tx.type === 'income' ? '#1a7a4a' : tx.type === 'expense' ? '#c0392b' : '#333';
+            const amtColor = tx.type === 'income' ? 'var(--income)' : tx.type === 'expense' ? 'var(--expense)' : 'var(--app-text)';
             const category = tx.category_id ? categoryMap[tx.category_id] : null;
             const account = tx.account_id ? accountMap[tx.account_id] : null;
             const fromAcc = tx.from_account_id ? accountMap[tx.from_account_id] : null;
             const toAcc = tx.to_account_id ? accountMap[tx.to_account_id] : null;
 
             const accountLabel = tx.type === 'transfer'
-              ? (fromAcc && toAcc ? `${fromAcc.name} → ${toAcc.name}` : '—')
-              : (account?.name ?? '—');
+              ? (fromAcc && toAcc ? `${fromAcc.name} -> ${toAcc.name}` : '-')
+              : (account?.name ?? '-');
 
             const daysLate = daysBetween(tx.transaction_date, tx.created_at);
 
@@ -76,8 +75,8 @@ export default function TransactionTable({ transactions, accounts, categories, o
               <tr
                 key={tx.id}
                 style={{
-                  borderBottom: '1px solid #f0f0f0',
-                  background: isEditing ? '#fffbe6' : undefined,
+                  borderBottom: '1px solid var(--border)',
+                  background: isEditing ? 'var(--warning-bg)' : undefined,
                   transition: 'background 0.15s',
                 }}
               >
@@ -87,15 +86,15 @@ export default function TransactionTable({ transactions, accounts, categories, o
                 <td style={td}>
                   <span>{formatDate(tx.transaction_date)}</span>
                   {daysLate >= 1 && (
-                    <span style={{ marginLeft: 6, fontSize: 11, color: '#aaa' }}>
+                    <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--faint-text)' }}>
                       (entered {daysLate}d later)
                     </span>
                   )}
                 </td>
-                <td style={{ ...td, color: '#888', fontSize: 13 }}>{formatTime(tx.transaction_time)}</td>
-                <td style={td}>{tx.description || '—'}</td>
-                <td style={{ ...td, color: '#555' }}>{category?.name ?? (tx.type === 'transfer' ? <em style={{ color: '#aaa' }}>Transfer</em> : '—')}</td>
-                <td style={{ ...td, color: '#555' }}>{accountLabel}</td>
+                <td style={{ ...td, color: 'var(--muted-text)', fontSize: 13 }}>{formatTime(tx.transaction_time)}</td>
+                <td style={td}>{tx.description || '-'}</td>
+                <td style={{ ...td, color: 'var(--muted-text)' }}>{category?.name ?? (tx.type === 'transfer' ? <em style={{ color: 'var(--faint-text)' }}>Transfer</em> : '-')}</td>
+                <td style={{ ...td, color: 'var(--muted-text)' }}>{accountLabel}</td>
                 <td style={{ ...td, textAlign: 'center' }}>
                   <span style={{
                     display: 'inline-block',
@@ -112,13 +111,13 @@ export default function TransactionTable({ transactions, accounts, categories, o
                 <td style={{ ...td, textAlign: 'center', whiteSpace: 'nowrap' }}>
                   <button
                     onClick={() => onEdit(tx)}
-                    style={{ marginRight: 6, padding: '3px 10px', cursor: 'pointer', fontSize: 12, border: '1px solid #ccc', borderRadius: 3, background: '#fff' }}
+                    style={editBtnStyle}
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => onDelete(tx.id)}
-                    style={{ padding: '3px 10px', cursor: 'pointer', fontSize: 12, border: '1px solid #e0b0b0', borderRadius: 3, background: '#fff', color: '#c0392b' }}
+                    style={deleteBtnStyle}
                   >
                     Delete
                   </button>
@@ -132,5 +131,35 @@ export default function TransactionTable({ transactions, accounts, categories, o
   );
 }
 
-const th: React.CSSProperties = { padding: '10px 12px', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' };
-const td: React.CSSProperties = { padding: '10px 12px', verticalAlign: 'middle' };
+const th: React.CSSProperties = {
+  padding: '10px 12px',
+  fontWeight: 600,
+  fontSize: 13,
+  whiteSpace: 'nowrap',
+};
+
+const td: React.CSSProperties = {
+  padding: '10px 12px',
+  verticalAlign: 'middle',
+};
+
+const editBtnStyle: React.CSSProperties = {
+  marginRight: 6,
+  padding: '3px 10px',
+  cursor: 'pointer',
+  fontSize: 12,
+  border: '1px solid var(--border)',
+  borderRadius: 3,
+  background: 'var(--surface)',
+  color: 'var(--app-text)',
+};
+
+const deleteBtnStyle: React.CSSProperties = {
+  padding: '3px 10px',
+  cursor: 'pointer',
+  fontSize: 12,
+  border: '1px solid var(--danger-border)',
+  borderRadius: 3,
+  background: 'var(--surface)',
+  color: 'var(--danger)',
+};

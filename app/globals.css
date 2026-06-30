@@ -3,25 +3,94 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  color-scheme: light dark;
+  --app-bg: #f6f8fb;
+  --app-text: #111827;
+  --muted-text: #6b7280;
+  --faint-text: #9ca3af;
+  --surface: #ffffff;
+  --surface-muted: #f9fafb;
+  --surface-strong: #eef2f7;
+  --border: #d8dee8;
+  --border-strong: #c3ccd9;
+  --input-bg: #ffffff;
+  --input-text: #111827;
+  --primary: #2563eb;
+  --primary-text: #ffffff;
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --danger-border: #fecaca;
+  --income: #047857;
+  --income-soft: #ecfdf5;
+  --expense: #dc2626;
+  --expense-soft: #fef2f2;
+  --transfer: #4b5563;
+  --transfer-soft: #f3f4f6;
+  --warning-bg: #fffbeb;
+  --warning-text: #92400e;
+  --warning-border: #fcd34d;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --app-bg: #101419;
+    --app-text: #e5e7eb;
+    --muted-text: #a6adbb;
+    --faint-text: #7d8794;
+    --surface: #171d24;
+    --surface-muted: #202832;
+    --surface-strong: #263140;
+    --border: #334155;
+    --border-strong: #475569;
+    --input-bg: #0f172a;
+    --input-text: #f8fafc;
+    --primary: #3b82f6;
+    --primary-text: #ffffff;
+    --danger: #f87171;
+    --danger-soft: #2d1618;
+    --danger-border: #7f1d1d;
+    --income: #34d399;
+    --income-soft: #102a22;
+    --expense: #f87171;
+    --expense-soft: #301819;
+    --transfer: #cbd5e1;
+    --transfer-soft: #243040;
+    --warning-bg: #2f2614;
+    --warning-text: #fbbf24;
+    --warning-border: #854d0e;
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  min-height: 100%;
+}
+
+body {
+  color: var(--app-text);
+  background: var(--app-bg);
+  margin: 0;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  background: var(--input-bg);
+  color: var(--input-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--faint-text);
 }
