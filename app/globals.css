@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light theme color variables */
 :root {
   color-scheme: light dark;
   --app-bg: #f6f8fb;
@@ -30,7 +31,7 @@
   --warning-text: #92400e;
   --warning-border: #fcd34d;
 }
-
+/* Dark theme overrides */
 @media (prefers-color-scheme: dark) {
   :root {
     --app-bg: #101419;
@@ -60,7 +61,7 @@
     --warning-border: #854d0e;
   }
 }
-
+/* Base reset styles */
 * {
   box-sizing: border-box;
 }
@@ -75,7 +76,7 @@ body {
   background: var(--app-bg);
   margin: 0;
 }
-
+/* Form element base styles */
 input,
 select,
 textarea,
